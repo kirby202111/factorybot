@@ -3,14 +3,50 @@ from agentscope.tool import Toolkit, Bash, Grep, Glob, Read, Write, Edit
 from agentscope.credential import DashScopeCredential
 from agentscope.model import DashScopeChatModel
 from agentscope.message import UserMsg
-from agentscope.event import EventType
-
+from agentscope.event import (
+    ConfirmResult,
+    EventType,
+    RequireUserConfirmEvent,
+    UserConfirmResultEvent,
+)
 import asyncio
 import os
+import sys
+from pathlib import Path
 
 from dotenv import load_dotenv
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from tools import get_current_time_tool
+
 load_dotenv()
+
+
+async def stream_reply(agent: Agent, inputs) -> None:
+    pending_confirm: RequireUserConfirmEvent | None = None
+
+    async for evt in agent.reply_stream(inputs):
+        match evt.type:
+            case EventType.TEXT_BLOCK_DELTA:
+                print(evt.delta, end="", flush=True)
+            case EventType.REQUIRE_USER_CONFIRM:
+                pending_confirm = evt
+            case EventType.REPLY_END:
+                print()
+
+    if pending_confirm is not None:
+        confirm = UserConfirmResultEvent(
+            reply_id=pending_confirm.reply_id,
+            confirm_results=[
+                ConfirmResult(
+                    confirmed=True,
+                    tool_call=tool_call,
+                    rules=tool_call.suggested_rules,
+                )
+                for tool_call in pending_confirm.tool_calls
+            ],
+        )
+        await stream_reply(agent, confirm)
 
 
 async def main() -> None:
@@ -21,29 +57,25 @@ async def main() -> None:
             credential=DashScopeCredential(
                 api_key=os.environ["DASHSCOPE_API_KEY"],
             ),
-            model="qwen3.6-plus",
+            model="gui-plus-2026-02-26",
         ),
         toolkit=Toolkit(
             tools=[
+                get_current_time_tool,
                 Bash(),
                 Grep(),
                 Glob(),
                 Read(),
                 Write(),
-                Edit(),
+                Edit()
             ]
         ),
     )
 
-    user_message = "请用一句话介绍特朗普。"
+    user_message = "告诉我现在的时间。"
     print(f"用户: {user_message}\n")
     print("Friday: ", end="", flush=True)
+    await stream_reply(agent, UserMsg("Tony", user_message))
 
-    async for evt in agent.reply_stream(UserMsg("Tony", user_message)):
-        match evt.type:
-            case EventType.TEXT_BLOCK_DELTA:
-                print(evt.delta, end="", flush=True)
-            case EventType.REPLY_END:
-                print()
 
 asyncio.run(main())
