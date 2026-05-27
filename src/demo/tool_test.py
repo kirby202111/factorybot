@@ -19,17 +19,18 @@ from tools import get_current_time_tool
 load_dotenv()
 
 
-async def stream_reply(agent: Agent, inputs) -> None:
+async def stream_reply(agent: Agent, inputs) -> str:
     pending_confirm: RequireUserConfirmEvent | None = None
+    parts: list[str] = []
 
     async for evt in agent.reply_stream(inputs):
         match evt.type:
             case EventType.TEXT_BLOCK_DELTA:
-                print(evt.delta, end="", flush=True)
+                parts.append(evt.delta)
             case EventType.REQUIRE_USER_CONFIRM:
                 pending_confirm = evt
             case EventType.REPLY_END:
-                print()
+                pass
 
     if pending_confirm is not None:
         confirm = UserConfirmResultEvent(
@@ -43,10 +44,12 @@ async def stream_reply(agent: Agent, inputs) -> None:
                 for tool_call in pending_confirm.tool_calls
             ],
         )
-        await stream_reply(agent, confirm)
+        return await stream_reply(agent, confirm)
+
+    return "".join(parts)
 
 
-async def tool_test() -> None:
+async def tool_test(user_message: str = "告诉我现在的美国时间。") -> str:
     agent = Agent(
         name="Friday",
         system_prompt="You're a helpful assistant named Friday.",
@@ -69,11 +72,9 @@ async def tool_test() -> None:
         ),
     )
 
-    user_message = "告诉我现在的美国时间。"
-    print(f"用户: {user_message}\n")
-    print("Friday: ", end="", flush=True)
-    await stream_reply(agent, UserMsg("Tony", user_message))
+    return await stream_reply(agent, UserMsg("Tony", user_message))
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    reply = asyncio.run(tool_test())
+    print(reply)

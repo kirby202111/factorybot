@@ -1,6 +1,7 @@
-import asyncio
+from dotenv import load_dotenv
 
-from demo.tool_test import tool_test
+from api import create_app
 
-if __name__ == "__main__":
-    asyncio.run(tool_test())
+load_dotenv()
+
+app = create_app()
