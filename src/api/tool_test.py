@@ -5,7 +5,7 @@ from fastapi import APIRouter, Request
 from fastapi.responses import StreamingResponse
 from fastapi.sse import EventSourceResponse, ServerSentEvent
 
-from demo.tool_test import tool_test, tool_test_stream
+from agents.tool_test import tool_test, tool_test_stream
 from schemas.tool_test import ToolTestRequest, ToolTestResponse
 
 router = APIRouter(tags=["tool-test"])
