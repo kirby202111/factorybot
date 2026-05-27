@@ -1,6 +1,11 @@
 packages:
-    - frontend
-    - backend
+  - frontend
+  - backend
+
+allowBuilds:
+  msw: false
+  sharp: false
+  unrs-resolver: false
 
 ignoredBuiltDependencies:
-    - msw
+  - msw
