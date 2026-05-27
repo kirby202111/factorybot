@@ -11,12 +11,9 @@ from agentscope.event import (
 )
 import asyncio
 import os
-import sys
-from pathlib import Path
 
 from dotenv import load_dotenv
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
 from tools import get_current_time_tool
 
 load_dotenv()
@@ -49,7 +46,7 @@ async def stream_reply(agent: Agent, inputs) -> None:
         await stream_reply(agent, confirm)
 
 
-async def main() -> None:
+async def tool_test() -> None:
     agent = Agent(
         name="Friday",
         system_prompt="You're a helpful assistant named Friday.",
@@ -62,20 +59,21 @@ async def main() -> None:
         toolkit=Toolkit(
             tools=[
                 get_current_time_tool,
-                Bash(),
-                Grep(),
-                Glob(),
-                Read(),
-                Write(),
-                Edit()
+                # Bash(),
+                # Grep(),
+                # Glob(),
+                # Read(),
+                # Write(),
+                # Edit()
             ]
         ),
     )
 
-    user_message = "告诉我现在的时间。"
+    user_message = "告诉我现在的美国时间。"
     print(f"用户: {user_message}\n")
     print("Friday: ", end="", flush=True)
     await stream_reply(agent, UserMsg("Tony", user_message))
 
 
-asyncio.run(main())
+if __name__ == "__main__":
+    asyncio.run(main())

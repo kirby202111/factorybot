@@ -485,7 +485,7 @@ wheels = [
 [[package]]
 name = "factorybot"
 version = "0.1.0"
-source = { virtual = "." }
+source = { editable = "." }
 dependencies = [
     { name = "agentscope" },
     { name = "python-dotenv" },
