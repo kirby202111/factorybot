@@ -1,8 +1,11 @@
 from fastapi import FastAPI
 
+from agentscope_app import create_agentscope_app
+
 
 def create_app() -> FastAPI:
-    app = FastAPI(title="factorybot")
+    """AgentScope service plus project-specific routes."""
+    app = create_agentscope_app()
 
     from api.health import router as health_router
     from api.index import router as index_router

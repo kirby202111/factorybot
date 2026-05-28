@@ -37,6 +37,9 @@ htmlcov/
 # Jupyter
 .ipynb_checkpoints/
 
+# Agent workspaces (runtime data)
+workspaces/
+
 # Logs
 *.log
 
