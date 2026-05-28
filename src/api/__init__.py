@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 
-from agentscope_app import create_agentscope_app
+from factory import create_agentscope_app
 
 
 def create_app() -> FastAPI:
