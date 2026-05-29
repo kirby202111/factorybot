@@ -2,30 +2,49 @@
 
 基于 [AgentScope](https://github.com/agentscope-ai/agentscope) 的 Agent 服务（Agent / Session / Chat / MCP / 定时任务等 API）。
 
+## 项目结构
+
+```
+factorybot/                 # 项目根
+├── factorybot/             # Python 包
+│   ├── app.py              # FastAPI 应用组装
+│   ├── core/
+│   │   ├── config.py       # 环境变量配置
+│   │   └── agentscope.py   # AgentScope 应用工厂
+│   ├── api/                # API 路由
+│   ├── agents/             # Agent 业务逻辑
+│   ├── tools/              # AgentScope 工具
+│   └── schemas/            # Pydantic 模型
+├── main.py                 # 本地开发入口
+└── pyproject.toml
+```
+
 ## 前置条件
 
 - Python ≥ 3.12，[uv](https://docs.astral.sh/uv/)
-- **Redis**（本地或远程，用于持久化 Agent、会话、凭证等）
+- **Redis**（`USE_REDIS=true` 时需要）
 - `DASHSCOPE_API_KEY`（对话模型）
 
-## 启动 Agent 服务
+## 启动
 
 ```bash
 uv sync
-cp .env.example .env   # 配置 DASHSCOPE_API_KEY、Redis 等
-# 确保 Redis 已运行，例如: docker run -d -p 6379:6379 redis:7-alpine
-uv run uvicorn main:app --port 8100 --reload
+cp .env.example .env
+uv run factorybot
+# 或
+uv run uvicorn factorybot.app:create_app --factory --port 8100 --reload
 # 或
 uv run python main.py
 ```
 
-- API 文档：http://127.0.0.1:8100/docs  
+- API 文档：http://127.0.0.1:8100/docs
 
 ### 环境变量
 
 | 变量 | 说明 |
 |------|------|
 | `DASHSCOPE_API_KEY` | 通义 / DashScope API Key |
+| `USE_REDIS` | 启用 AgentScope 完整服务（默认 `false`） |
 | `REDIS_HOST` / `REDIS_PORT` / `REDIS_DB` | Redis 连接（默认 `localhost:6379/0`） |
 | `AMAP_API_KEY` | 可选，配置后自动注册高德 MCP |
 | `WORKSPACES_DIR` | Agent 工作区目录（默认项目根下 `workspaces/`） |

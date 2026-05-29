@@ -1,22 +1,21 @@
+import asyncio
+import os
 from collections.abc import AsyncIterator
 
 from agentscope.agent import Agent
-from agentscope.tool import Toolkit, Bash, Grep, Glob, Read, Write, Edit
 from agentscope.credential import DashScopeCredential
-from agentscope.model import DashScopeChatModel
-from agentscope.message import UserMsg
 from agentscope.event import (
     ConfirmResult,
     EventType,
     RequireUserConfirmEvent,
     UserConfirmResultEvent,
 )
-import asyncio
-import os
-
+from agentscope.message import UserMsg
+from agentscope.model import DashScopeChatModel
+from agentscope.tool import Toolkit
 from dotenv import load_dotenv
 
-from tools import get_current_time_tool
+from factorybot.tools import get_current_time_tool
 
 load_dotenv()
 
@@ -34,12 +33,6 @@ def _build_agent() -> Agent:
         toolkit=Toolkit(
             tools=[
                 get_current_time_tool,
-                # Bash(),
-                # Grep(),
-                # Glob(),
-                # Read(),
-                # Write(),
-                # Edit()
             ]
         ),
     )
